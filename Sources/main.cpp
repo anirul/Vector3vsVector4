@@ -1,10 +1,13 @@
 #include <array>
 #include <vector>
 #include <chrono>
+#include <cmath>
 #include <iostream>
-
+	
 // A simple vec3.
 struct vec3 {
+	vec3(): x(0), y(0), z(0) {}
+	vec3(float a, float b, float c): x(a), y(b), z(c) {}
 	float x = 0;
 	float y = 0;
 	float z = 0;
@@ -17,6 +20,8 @@ float operator*(const vec3& v1, const vec3& v2) {
 
 // A simple vec4.
 struct vec4 {
+	vec4(): x(0), y(0), z(0), w(0) {}
+	vec4(float a, float b, float c, float d): x(a), y(b), z(c), w(d) {}
 	float x = 0;
 	float y = 0;
 	float z = 0;
@@ -29,7 +34,7 @@ float operator*(const vec4& v1, const vec4& v2) {
 }
 
 // This is there to test if vec3 is faster than vec4.
-int main(int ac, char* av) {
+int main(int ac, char** av) {
 	// First I try with local arrays.
 	{
 		constexpr int big_value = 1024;
