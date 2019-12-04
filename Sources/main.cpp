@@ -4,12 +4,13 @@
 #include <cmath>
 #include <iostream>
 #include <numeric>
+#include <algorithm>
 
 // A simple vec3.
 struct vec3 {
-	vec3(): x(0), y(0), z(0) {}
-	vec3(float a): x(a), y(0), z(0) {}
-	vec3(float a, float b, float c): x(a), y(b), z(c) {}
+	vec3() : x(0), y(0), z(0) {}
+	vec3(float a) : x(a), y(0), z(0) {}
+	vec3(float a, float b, float c) : x(a), y(b), z(c) {}
 	float x = 0;
 	float y = 0;
 	float z = 0;
@@ -51,9 +52,9 @@ vec3SoA<N> sqrtSoA(const vec3SoA<N>& v) {
 
 // A simple vec4.
 struct alignas(16) vec4 {
-	vec4(): x(0), y(0), z(0), w(1) {}
-	vec4(float a): x(a), y(0), z(0), w(1) {}
-	vec4(float a, float b, float c, float d): x(a), y(b), z(c), w(d) {}
+	vec4() : x(0), y(0), z(0), w(1) {}
+	vec4(float a) : x(a), y(0), z(0), w(1) {}
+	vec4(float a, float b, float c, float d) : x(a), y(b), z(c), w(d) {}
 	float x = 0;
 	float y = 0;
 	float z = 0;
@@ -158,7 +159,7 @@ double CheckVectorAoSoA(const size_t big_value) {
 		std::vector<T> T_vector;
 		T_vector.resize(big_value / N);
 		auto before = std::chrono::high_resolution_clock::now();
-		std::for_each(T_vector.begin(), T_vector.end(), [](T<N>& val) {
+		std::for_each(T_vector.begin(), T_vector.end(), [](T& val) {
 			val = sqrtSoA(val * val);
 		});
 		auto after = std::chrono::high_resolution_clock::now();
@@ -170,18 +171,20 @@ double CheckVectorAoSoA(const size_t big_value) {
 
 // This is there to test if vec3 is faster than vec4.
 int main(int ac, char** av) {
+#ifdef WIN32
 	std::cout
 		<< "default alignment            : "
 		<< __STDCPP_DEFAULT_NEW_ALIGNMENT__
 		<< std::endl;
+#endif
 	// First I try with local arrays.
 	{
 		std::cout
 			<< "time spend (array<vec3>)     : "
 			<< CheckArray<vec3>()
 			<< std::endl;
-		std::cout 
-			<< "total space used             : " 
+		std::cout
+			<< "total space used             : "
 			<< sizeof(vec3) * small_value
 			<< std::endl;
 		std::cout
@@ -203,7 +206,7 @@ int main(int ac, char** av) {
 			<< sizeof(vec3SoA<8>) * small_value / 8
 			<< std::endl;
 		std::cout
-			<< "time spend (array<vec3SoA>)  : "
+			<< "time spend (array<vec4SoA>)  : "
 			<< CheckArrayAoSoA<vec4SoA<8>, 8>()
 			<< std::endl;
 		std::cout
@@ -242,7 +245,7 @@ int main(int ac, char** av) {
 			<< sizeof(vec3SoA<8>) * big_value / 8
 			<< std::endl;
 		std::cout
-			<< "time spend (vector<vec3SoA>) : "
+			<< "time spend (vector<vec4SoA>) : "
 			<< CheckVectorAoSoA<vec4SoA<8>, 8>(big_value)
 			<< std::endl;
 		std::cout
