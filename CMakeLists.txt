@@ -2,6 +2,8 @@ cmake_minimum_required(VERSION 3.10)
 
 if(WIN32)
 	add_compile_options("/std:c++latest")
+	add_compile_options("/Ox")
+	add_compile_options("/fp:fast")
 endif(WIN32)
 
 if(APPLE)
