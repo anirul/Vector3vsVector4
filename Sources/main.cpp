@@ -5,6 +5,8 @@
 #include <iostream>
 #include <numeric>
 #include <algorithm>
+#include <random>
+#include <execution>
 
 // A simple vec3.
 struct vec3 {
@@ -17,11 +19,32 @@ struct vec3 {
 };
 
 template <size_t N>
-struct vec3SoA {
+struct alignas(16) vec3SoA {
 	float x[N] = { 0 };
 	float y[N] = { 0 };
 	float z[N] = { 0 };
 };
+
+void RandomFill(vec3& v) {
+	static std::random_device device;
+	static std::mt19937 generator(device());
+	static std::uniform_real_distribution<> distribution(-100.0, 100.0);
+	v.x = (float)distribution(generator);
+	v.y = (float)distribution(generator);
+	v.z = (float)distribution(generator);
+}
+
+template <size_t N>
+void RandomFill(vec3SoA<N>& v) {
+	static std::random_device device;
+	static std::mt19937 generator(device());
+	static std::uniform_real_distribution<> distribution(-100.0, 100.0);
+	for (int i = 0; i < N; ++i) {
+		v.x[i] = (float)distribution(generator);
+		v.y[i] = (float)distribution(generator);
+		v.z[i] = (float)distribution(generator);
+	}
+}
 
 // Dot product.
 float operator*(const vec3& v1, const vec3& v2) {
@@ -62,12 +85,35 @@ struct alignas(16) vec4 {
 };
 
 template <size_t N>
-struct vec4SoA {
+struct alignas(16) vec4SoA {
 	float x[N] = { 0 };
 	float y[N] = { 0 };
 	float z[N] = { 0 };
 	float w[N] = { 0 };
 };
+
+void RandomFill(vec4& v) {
+	static std::random_device device;
+	static std::mt19937 generator(device());
+	static std::uniform_real_distribution<> distribution(-100.0, 100.0);
+	v.x = (float)distribution(generator);
+	v.y = (float)distribution(generator);
+	v.z = (float)distribution(generator);
+	v.w = (float)distribution(generator);
+}
+
+template <size_t N>
+void RandomFill(vec4SoA<N>& v) {
+	static std::random_device device;
+	static std::mt19937 generator(device());
+	static std::uniform_real_distribution<> distribution(-100.0, 100.0);
+	for (int i = 0; i < N; ++i) {
+		v.x[i] = (float)distribution(generator);
+		v.y[i] = (float)distribution(generator);
+		v.z[i] = (float)distribution(generator);
+		v.w[i] = (float)distribution(generator);
+	}
+}
 
 // Purposely simplified dot product (to be equivalent to the vec3).
 float operator*(const vec4& v1, const vec4& v2) {
@@ -102,9 +148,16 @@ template <typename T>
 double CheckArray() {
 	std::vector<double> result_array;
 	result_array.resize(small_value);
+	std::array<T, small_value> T_array = {};
+	std::for_each(
+		std::execution::par,
+		T_array.begin(),
+		T_array.end(),
+		[](T& val) {
+		RandomFill(val);
+	});
 	for (int i = 0; i < small_value; ++i)
 	{
-		std::array<T, small_value> T_array = {};
 		auto before = std::chrono::high_resolution_clock::now();
 		std::for_each(T_array.begin(), T_array.end(), [](T& val) {
 			val = T{ std::sqrt(val * val) };
@@ -120,8 +173,15 @@ template <typename T, size_t N>
 double CheckArrayAoSoA() {
 	std::vector<double> result_array;
 	result_array.resize(small_value);
+	std::array<T, small_value / N> T_array = {};
+	std::for_each(
+		std::execution::par,
+		T_array.begin(),
+		T_array.end(),
+		[](T& val) {
+		RandomFill(val);
+	});
 	for (int i = 0; i < small_value; ++i) {
-		std::array<T, small_value / N> T_array = {};
 		auto before = std::chrono::high_resolution_clock::now();
 		std::for_each(T_array.begin(), T_array.end(), [](T& val) {
 			val = T{ sqrtSoA(val * val) };
@@ -137,9 +197,16 @@ template <typename T>
 double CheckVector(const size_t big_value) {
 	std::vector<double> result_array;
 	result_array.resize(small_value);
+	std::vector<T> T_vector(big_value, T());
+	std::for_each(
+		std::execution::par,
+		T_vector.begin(),
+		T_vector.end(),
+		[](T& val) {
+		RandomFill(val);
+	});
 	for (int i = 0; i < small_value; ++i)
 	{
-		std::vector<T> T_vector(big_value, T());
 		auto before = std::chrono::high_resolution_clock::now();
 		std::for_each(T_vector.begin(), T_vector.end(), [](T& val) {
 			val = T{ std::sqrt(val * val) };
@@ -155,9 +222,16 @@ template <typename T, size_t N>
 double CheckVectorAoSoA(const size_t big_value) {
 	std::vector<double> result_array;
 	result_array.resize(small_value);
+	std::vector<T> T_vector;
+	T_vector.resize(big_value / N);
+	std::for_each(
+		std::execution::par,
+		T_vector.begin(),
+		T_vector.end(),
+		[](T& val) {
+		RandomFill(val);
+	});
 	for (int i = 0; i < small_value; ++i) {
-		std::vector<T> T_vector;
-		T_vector.resize(big_value / N);
 		auto before = std::chrono::high_resolution_clock::now();
 		std::for_each(T_vector.begin(), T_vector.end(), [](T& val) {
 			val = sqrtSoA(val * val);
