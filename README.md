@@ -1,5 +1,5 @@
 # Vector3vsVector4
-Tiny project to test that vec3 are inefficient on current hardware.
+Tiny project to test vec3 efficiency on current hardware.
 
 ## Linux
 
