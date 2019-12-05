@@ -17,10 +17,10 @@ struct vec3 {
 };
 
 template <size_t N>
-struct vec3SoA {
-	float x[N] = { 0 };
-	float y[N] = { 0 };
-	float z[N] = { 0 };
+struct alignas(16) vec3SoA {
+	std::array<float, N> x = { 0 };
+	std::array<float, N> y = { 0 };
+	std::array<float, N> z = { 0 };
 };
 
 // Dot product.
@@ -62,11 +62,11 @@ struct alignas(16) vec4 {
 };
 
 template <size_t N>
-struct vec4SoA {
-	float x[N] = { 0 };
-	float y[N] = { 0 };
-	float z[N] = { 0 };
-	float w[N] = { 0 };
+struct alignas(16) vec4SoA {
+	std::array<float, N> x = { 0 };
+	std::array<float, N> y = { 0 };
+	std::array<float, N> z = { 0 };
+	std::array<float, N> w = { 0 };
 };
 
 // Purposely simplified dot product (to be equivalent to the vec3).
@@ -96,12 +96,51 @@ vec4SoA<N> sqrtSoA(const vec4SoA<N>& v) {
 	return ret;
 }
 
-constexpr size_t small_value = 1024;
+template <size_t N>
+class RandomFill {
+public:
+
+	template <typename T>
+	void Set(T& v) {
+		SetValue(v.x);
+		SetValue(v.y);
+		SetValue(v.z);
+	}
+
+private:
+	void SetValue(float& v) {
+		v = (float)distribution_(generator_);
+	}
+
+	void SetValue(std::array<float, N>& v) {
+		std::for_each(std::execution::par, v.begin(), v.end(), [](float& f) {
+			f = (float)distribution_(generator_);
+		});
+	}
+
+	std::random_device device_ = {};
+	std::mt19937 generator_ = std::mt19937(device_());
+	std::uniform_real_distribution<> distribution_ = 
+		std::uniform_real_distribution<>(-100.0, 100.0);
+};
+
+namespace {
+	constexpr size_t small_value = 1024;
+	RandomFill<8> random_fill;
+}
 
 template <typename T>
 double CheckArray() {
 	std::vector<double> result_array;
 	result_array.resize(small_value);
+	std::array<T, small_value> T_array = {};
+	std::for_each(
+		std::execution::par,
+		T_array.begin(),
+		T_array.end(),
+		[](T& val) {
+		random_fill.Set<T>(val);
+	});
 	for (int i = 0; i < small_value; ++i)
 	{
 		std::array<T, small_value> T_array = {};
@@ -120,6 +159,14 @@ template <typename T, size_t N>
 double CheckArrayAoSoA() {
 	std::vector<double> result_array;
 	result_array.resize(small_value);
+	std::array<T, small_value / N> T_array = {};
+	std::for_each(
+		std::execution::par,
+		T_array.begin(),
+		T_array.end(),
+		[](T& val) {
+		random_fill.Set<T>(val);
+	});
 	for (int i = 0; i < small_value; ++i) {
 		std::array<T, small_value / N> T_array = {};
 		auto before = std::chrono::high_resolution_clock::now();
@@ -137,6 +184,14 @@ template <typename T>
 double CheckVector(const size_t big_value) {
 	std::vector<double> result_array;
 	result_array.resize(small_value);
+	std::vector<T> T_vector(big_value, T());
+	std::for_each(
+		std::execution::par,
+		T_vector.begin(),
+		T_vector.end(),
+		[](T& val) {
+		random_fill.Set<T>(val);
+	});
 	for (int i = 0; i < small_value; ++i)
 	{
 		std::vector<T> T_vector(big_value, T());
@@ -155,6 +210,15 @@ template <typename T, size_t N>
 double CheckVectorAoSoA(const size_t big_value) {
 	std::vector<double> result_array;
 	result_array.resize(small_value);
+	std::vector<T> T_vector;
+	T_vector.resize(big_value / N);
+	std::for_each(
+		std::execution::par,
+		T_vector.begin(),
+		T_vector.end(),
+		[](T& val) {
+		random_fill.Set<T>(val);
+	});
 	for (int i = 0; i < small_value; ++i) {
 		std::vector<T> T_vector;
 		T_vector.resize(big_value / N);
