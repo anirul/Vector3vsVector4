@@ -24,6 +24,27 @@ struct vec3SoA {
 	std::array<float, N> z = { 0 };
 };
 
+void RandomFill(vec3& v) {
+	static std::random_device device;
+	static std::mt19937 generator(device());
+	static std::uniform_real_distribution<> distribution(-100.0, 100.0);
+	v.x = (float)distribution(generator);
+	v.y = (float)distribution(generator);
+	v.z = (float)distribution(generator);
+}
+
+template <size_t N>
+void RandomFill(vec3SoA<N>& v) {
+	static std::random_device device;
+	static std::mt19937 generator(device());
+	static std::uniform_real_distribution<> distribution(-100.0, 100.0);
+	for (int i = 0; i < N; ++i) {
+		v.x[i] = (float)distribution(generator);
+		v.y[i] = (float)distribution(generator);
+		v.z[i] = (float)distribution(generator);
+	}
+}
+
 // Dot product.
 vec3 operator*(const vec3& v1, const vec3& v2) {
 	vec3 ret;
@@ -64,6 +85,7 @@ vec3SoA<N> square_root(const vec3SoA<N>& v) {
 }
 
 // A simple vec4.
+
 struct vec4 {
 	vec4() : x(0), y(0), z(0), w(1) {}
 	vec4(float a) : x(a), y(0), z(0), w(1) {}
@@ -81,6 +103,29 @@ struct vec4SoA {
 	std::array<float, N> z = { 0 };
 	std::array<float, N> w = { 0 };
 };
+
+void RandomFill(vec4& v) {
+	static std::random_device device;
+	static std::mt19937 generator(device());
+	static std::uniform_real_distribution<> distribution(-100.0, 100.0);
+	v.x = (float)distribution(generator);
+	v.y = (float)distribution(generator);
+	v.z = (float)distribution(generator);
+	v.w = (float)distribution(generator);
+}
+
+template <size_t N>
+void RandomFill(vec4SoA<N>& v) {
+	static std::random_device device;
+	static std::mt19937 generator(device());
+	static std::uniform_real_distribution<> distribution(-100.0, 100.0);
+	for (int i = 0; i < N; ++i) {
+		v.x[i] = (float)distribution(generator);
+		v.y[i] = (float)distribution(generator);
+		v.z[i] = (float)distribution(generator);
+		v.w[i] = (float)distribution(generator);
+	}
+}
 
 // Purposely simplified dot product (to be equivalent to the vec3).
 vec4 operator*(const vec4& v1, const vec4& v2) {
