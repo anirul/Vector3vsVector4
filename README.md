@@ -1,5 +1,29 @@
 # Vector3vsVector4
 Tiny project to test that vec3 are inefficient on current hardware.
+
+## Linux
+
+```bash
+spend (array<vec3>)          : 4.57e-07
+total space used             : 12288
+time spend (array<vec4>)     : 1.607e-06
+total space used             : 16384
+time spend (array<vec3SoA>)  : 2.34e-07
+total space used             : 12288
+time spend (array<vec4SoA>)  : 2.21e-07
+total space used             : 16384
+time spend (vector<vec3>)    : 0.000933589
+total space used             : 12582912
+time spend (vector<vec4>)    : 0.00201589
+total space used             : 16777216
+time spend (vector<vec3SoA>) : 0.000715386
+total spend used             : 12582912
+time spend (vector<vec4SoA>) : 0.00110701
+total spend used             : 16777216
+```
+Revert from what we should hope this was done under Ubuntu with clang compiler.
+
+
 ## Windows
 
 ```powershell
@@ -21,7 +45,6 @@ total spend used             : 12582912
 time spend (vector<vec4SoA>) : 0.0046761
 total spend used             : 16777216
 ```
-
 We don't see anyting... Changes are meaningless and the improvement are non significative.
 
 ## OSX
