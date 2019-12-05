@@ -1,5 +1,28 @@
 # Vector3vsVector4
 Tiny project to test that vec3 are inefficient on current hardware.
+## Windows
+
+```powershell
+default alignment            : 16
+time spend (array<vec3>)     : 1.8e-06
+total space used             : 12288
+time spend (array<vec4>)     : 1.9e-06
+total space used             : 16384
+time spend (array<vec3SoA>)  : 4.2e-06
+total space used             : 12288
+time spend (array<vec4SoA>)  : 4.4e-06
+total space used             : 16384
+time spend (vector<vec3>)    : 0.0019076
+total space used             : 12582912
+time spend (vector<vec4>)    : 0.0020377
+total space used             : 16777216
+time spend (vector<vec3SoA>) : 0.0044297
+total spend used             : 12582912
+time spend (vector<vec4SoA>) : 0.0046761
+total spend used             : 16777216
+```
+
+We don't see anyting... Changes are meaningless and the improvement are non significative.
 
 ## OSX
 ```bash
