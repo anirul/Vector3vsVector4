@@ -13,6 +13,8 @@ if(APPLE)
     set(CMAKE_XCODE_ATTRIBUTE_CLANG_CXX_LIBRARY libc++)
     set(CMAKE_OSX_ARCHITECTURES x86_64)
     set(CMAKE_LIBRARY_PREFIX /opt/local /usr/local)
+    set(CMAKE_CXX_STANDARD 17)
+    set(CMAKE_CXX_STANDARD_REQUIRED ON)
 endif(APPLE)
 
 project(Vector3vsVector4)
