@@ -178,7 +178,7 @@ double Check(I begin, I end) {
 		std::chrono::duration<double> delta_time = after - before;
 		result_vector[i] = delta_time.count();
 	}
-	return *min_element(result_vector.begin(), result_vector.end());
+	return *std::min_element(result_vector.begin(), result_vector.end());
 }
 
 // This is there to test if vec3 is faster than vec4.
