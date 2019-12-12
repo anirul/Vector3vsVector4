@@ -4,7 +4,7 @@ Tiny project to test vec3 efficiency on current hardware.
 ## Linux
 
 ```bash
-spend (array<vec3>)          : 4.57e-07
+time spend (array<vec3>)     : 4.57e-07
 total space used             : 12288
 time spend (array<vec4>)     : 1.607e-06
 total space used             : 16384
